@@ -1,0 +1,16 @@
+<assemblies timestamp="04/06/2025 19:45:59">
+  <assembly name="D:\Desarrollo\VisualStudio\2025\Hackerrank\Net\BooksService\BooksService.Tests\bin\Debug\net6.0\BooksService.Tests.dll" run-date="2025-04-06" run-time="19:45:59" total="3" passed="3" failed="0" skipped="0" time="1.305" errors="0">
+    <errors />
+    <collection total="3" passed="3" failed="0" skipped="0" name="Test collection for BooksService.Tests.IntegrationTests" time="0.270">
+      <test name="BooksService.Tests.IntegrationTests.TestValidateBooks_BadRequests_Oks" type="BooksService.Tests.IntegrationTests" method="TestValidateBooks_BadRequests_Oks" time="0.2432188" result="Pass">
+        <traits />
+      </test>
+      <test name="BooksService.Tests.IntegrationTests.TestValidateBooks_BadRequests" type="BooksService.Tests.IntegrationTests" method="TestValidateBooks_BadRequests" time="0.0163401" result="Pass">
+        <traits />
+      </test>
+      <test name="BooksService.Tests.IntegrationTests.TestValidateBooks_BadRequests_PublicationDate" type="BooksService.Tests.IntegrationTests" method="TestValidateBooks_BadRequests_PublicationDate" time="0.0108316" result="Pass">
+        <traits />
+      </test>
+    </collection>
+  </assembly>
+</assemblies>
