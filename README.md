@@ -1,17 +1,16 @@
-# Restaurant Collection API — .NET 6 / C#
+# Books Service API — .NET 6 / ASP.NET Core Web API
 
-A fully functional RESTful API built with .NET 6 and C# for managing a restaurant
-directory across multiple cities. Implements complete CRUD operations, query filtering,
-and data sorting — following REST best practices and clean architecture patterns.
+A .NET 6 Web API implementing robust **model validation** patterns for a book
+catalog service. Demonstrates best-practice validation architecture — logic lives
+in the model layer, keeping controllers clean and testable.
 
 ## Features
 
-- Full **CRUD** operations on restaurant data
-- **Query filtering** by city and by unique ID
-- **Sorting** by average user rating
-- **Unit test suite** included (`RestaurantCollection.Tests`)
-- Clean JSON request/response contract
-- Proper HTTP status codes per operation (201, 200, 204)
+- **Model-layer validation** — all rules enforced in `Models/Book.cs`, not in controllers
+- **Detailed error responses** — descriptive 400 messages per field violation
+- **Integration test suite** — `BooksService.Tests/IntegrationTests.cs`
+- **Clean architecture** — WebAPI project fully separated from test project
+- Proper HTTP status codes (200 success / 400 validation failure)
 
 ## Tech Stack
 
@@ -19,77 +18,96 @@ and data sorting — following REST best practices and clean architecture patter
 |---|---|
 | Framework | .NET 6 / ASP.NET Core Web API |
 | Language | C# |
-| Architecture | RESTful API |
-| Testing | NUnit (RestaurantCollection.Tests) |
+| Architecture | RESTful Web API with model validation |
+| Testing | Integration Tests (BooksService.Tests) |
 
 ## Project Structure
 
 ```
-RestaurantCollection/
-├── RestaurantCollection/          # Main API project
-├── RestaurantCollection.Tests/    # Unit test suite (read-only specs)
+BooksService/
+├── BooksService.WebAPI/           # Main Web API project
+│   ├── Controllers/
+│   │   └── BooksController.cs    # REST controller (read-only spec)
+│   └── Models/
+│       └── Book.cs               # Model with full validation logic
+├── BooksService.Tests/
+│   └── IntegrationTests.cs       # Integration test suite
 ├── reports/                       # Test execution reports
-├── RestaurantCollection.sln
-└── README.md
+└── BooksService.WebAPI.sln
 ```
 
-## API Endpoints
+## API Endpoint
 
-| Method | Endpoint | Description | Status Code |
-|--------|----------|-------------|-------------|
-| `POST` | `/restaurant` | Add a new restaurant | 201 |
-| `GET` | `/restaurant` | Get all restaurants | 200 |
-| `GET` | `/restaurant/query?city={city}` | Get restaurants by city | 200 |
-| `GET` | `/restaurant/query?id={id}` | Get restaurant by ID | 200 |
-| `PUT` | `/restaurant/{id}` | Update rating and votes | 200 |
-| `DELETE` | `/restaurant/{id}` | Delete restaurant by ID | 204 |
-| `GET` | `/restaurant/sort` | Get restaurants sorted by rating | 200 |
+| Method | Endpoint | Success | Failure |
+|--------|----------|---------|---------|
+| `POST` | `/api/books` | 200 OK | 400 Bad Request |
 
 ## Data Model
 
 ```json
 {
-  "id": "1",
-  "name": "Byg Company",
-  "city": "Miami",
-  "estimatedCost": 1600,
-  "averageRating": "4.9",
-  "votes": "16203"
+  "title": "Initial Professional Development for Civil Engineers",
+  "author": "Patrick Waterhouse",
+  "publicationDate": "2017-09-08T19:04:14.480Z"
 }
 ```
+
+## Validation Rules
+
+| Field | Rules | Error Message |
+|-------|-------|---------------|
+| `title` | Required · 5–255 chars · First letter uppercase | `"Title is invalid: ..."` |
+| `author` | Required · 3–30 chars · First letter uppercase | `"Author is invalid: ..."` |
+| `publicationDate` | Required · After 01/01/1900 · Before today | `"PublicationDate is invalid: ..."` |
 
 ## Getting Started
 
 ```bash
-git clone https://github.com/Kerwin-Core/RestaurantCollection
-cd RestaurantCollection
+git clone https://github.com/Kerwin-Core/BooksService
+cd BooksService
 dotnet restore
-dotnet run --project RestaurantCollection
+dotnet run --project BooksService.WebAPI
 ```
 
 ## Running Tests
 
 ```bash
-dotnet test RestaurantCollection.Tests
+dotnet test BooksService.Tests
 ```
 
 ## Example Requests
 
-**Add a restaurant:**
+**Valid book — returns 200:**
 ```bash
-curl -X POST https://localhost:5001/restaurant \
+curl -X POST https://localhost:5001/api/books \
   -H "Content-Type: application/json" \
-  -d '{"name":"Byg Company","city":"Miami","estimatedCost":1600,"averageRating":"4.9","votes":"16203"}'
+  -d '{
+    "title": "Initial Professional Development for Civil Engineers",
+    "author": "Patrick Waterhouse",
+    "publicationDate": "2017-09-08T19:04:14.480Z"
+  }'
 ```
 
-**Get all restaurants in Miami:**
+**Invalid book — returns 400:**
 ```bash
-curl https://localhost:5001/restaurant/query?city=Miami
+curl -X POST https://localhost:5001/api/books \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "bad",
+    "author": "x",
+    "publicationDate": "1800-01-01T00:00:00.000Z"
+  }'
 ```
 
-**Get sorted by rating:**
-```bash
-curl https://localhost:5001/restaurant/sort
+**400 Response example:**
+```json
+{
+  "errors": [
+    "Title is invalid: Title must contain a minimum of 5 characters and a maximum of 255, and the first letter should be in upper case",
+    "Author is invalid: Author must contain a minimum of 3 characters and a maximum of 30, and the first letter should be in upper case",
+    "PublicationDate is invalid: PublicationDate must be after 01/01/1900 and before the current date"
+  ]
+}
 ```
 
 ## About the Author
